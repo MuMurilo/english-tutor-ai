@@ -146,38 +146,46 @@ Todos os endpoints exigem `Authorization: Bearer <JWT>`.
 
 ---
 
-## 🪙 Uso de Tokens e Otimização de Custos
+## ⚙️ Decisões de Arquitetura
 
-Um dos principais objetivos de design deste projeto é **minimizar o consumo de tokens da API do Gemini** sem comprometer a qualidade do ensino.
+### Janela de Contexto do Chat (20 mensagens)
 
-| Estratégia | Como funciona | Impacto |
-|------------|--------------|---------|
-| **Limite da janela de contexto** | Apenas as últimas 20 mensagens do banco são montadas no payload enviado ao Gemini por requisição de chat | ~60–80% menos tokens em sessões longas |
-| **Análise de feedback assíncrona** | A chamada de feedback é disparada após a resposta do tutor ser retornada — nunca bloqueia o loop de eventos | Sem latência adicional |
-| **Contexto focado para feedback** | Apenas as últimas 4 mensagens são enviadas ao analisador de feedback; o prompt instrui o modelo a analisar **apenas a última mensagem do USER** | ~75% menos tokens vs. histórico completo |
-| **Modelo leve por padrão** | O app usa por padrão o `gemini-3.1-flash-lite` — um modelo pequeno, rápido e de baixo custo | ~5× mais barato vs. Pro |
-| **Modelo configurável** | Troque o modelo alterando `gemini.model` em `application.properties` sem recompilar | Flexibilidade total |
-| **Banco em memória para testes** | Testes usam `jdbc:h2:mem:testdb` — evita locks de arquivo e acelera o CI | Execução de testes mais rápida |
+O backend limita as mensagens enviadas ao Gemini às **últimas 20** do banco de dados. Essa escolha garante:
+- **Contexto conversacional coerente** — o tutor mantém o fio da conversa recente sem se perder em mensagens muito antigas.
+- **Respostas mais focadas** — menos ruído histórico produz respostas mais objetivas e relevantes ao momento atual da prática.
+- **Performance previsível** — o tamanho do payload de cada requisição ao Gemini se mantém estável independentemente de quantas mensagens o estudante já enviou.
 
-### Orçamento Estimado de Tokens por Troca de Mensagem
+### Contexto Focado para Análise de Feedback (4 mensagens)
 
-| Chamada | Tokens de entrada (aprox.) | Tokens de saída (aprox.) |
-|---------|---------------------------|--------------------------|
-| Resposta do tutor (contexto de 20 mensagens) | ~1.500 – 3.500 | ~150 – 400 |
-| Análise de feedback (contexto de 4 mensagens) | ~600 – 900 | ~200 – 500 |
-| Relatório do dashboard (todos os feedbacks) | ~800 – 2.000 | ~300 – 600 |
+O analisador de feedback recebe apenas as **últimas 4 mensagens** e o prompt instrui o modelo a avaliar **exclusivamente a última fala do estudante (USER)**. Isso é fundamental para:
+- **Precisão da análise** — evita reavaliar mensagens antigas já processadas.
+- **Isolamento correto** — impede que o modelo analise frases do próprio tutor como se fossem do estudante.
+- **Qualidade do feedback** — cada erro ou acerto é registrado uma única vez, referente ao que o estudante disse agora.
 
-> Os valores variam conforme o tamanho da conversa, o nível de inglês e a quantidade de feedbacks acumulados.
+### Análise de Feedback Assíncrona
 
-### Modelos Disponíveis
+A análise linguística é executada de forma **assíncrona** via `ManagedExecutor` (Quarkus). O estudante recebe a resposta do tutor imediatamente, enquanto o processamento do feedback ocorre em paralelo — sem adicionar latência perceptível à conversa.
 
-| Modelo | Velocidade | Custo Relativo | Recomendado Para |
-|--------|-----------|----------------|-----------------|
-| `gemini-3.1-flash-lite` | ⚡ Muito rápido | 💰 Mais barato | Produção com alto volume (padrão) |
-| `gemini-2.5-flash` | ⚡ Rápido | 💰💰 Moderado | Melhor qualidade de resposta |
-| `gemini-2.5-pro` | 🐢 Mais lento | 💰💰💰 Caro | Máxima qualidade pedagógica |
+### Retry com Backoff Exponencial
+
+A chamada de feedback inclui retry automático (até 3 tentativas, com espera inicial de 1,5 s dobrando a cada falha). Isso torna o sistema resiliente a erros transitórios da API do Gemini sem impactar o fluxo principal da conversa.
+
+### Modelo de IA Configurável
+
+O modelo do Gemini é lido de `application.properties` em runtime:
+```properties
+gemini.model=gemini-3.1-flash-lite
+```
+Isso permite alterar o modelo (ex: `gemini-2.5-flash`, `gemini-2.5-pro`) sem recompilar a aplicação, adaptando a qualidade das respostas conforme necessidade.
+
+> 📖 **Nota sobre tokens de desenvolvimento:** Este projeto foi construído com o auxílio do agente de IA **Antigravity**. Para informações sobre o consumo de tokens do *agente de desenvolvimento* durante a elaboração deste projeto (não do tutor em produção), consulte [docs/TOKEN_OPTIMIZATION.md](docs/TOKEN_OPTIMIZATION.md).
 
 ---
+
+
+---
+
+
 
 ## 🛠️ Stack Tecnológica
 

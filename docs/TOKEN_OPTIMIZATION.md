@@ -1,194 +1,68 @@
-# Relatório de Tokens e Modelo de IA
+# Relatório de Consumo de Tokens na Elaboração do Projeto
 
-## Visão Geral
-
-Este documento detalha as estratégias de otimização de tokens adotadas no **English Tutor AI** e explica como cada escolha de design impacta o custo e a qualidade das respostas da API do Google Gemini.
+> **Contexto:** Este documento registra o consumo de tokens do **agente de IA Antigravity** durante a sessão de desenvolvimento assistido por IA que construiu este projeto — não o consumo de tokens do aplicativo English Tutor AI em si.
 
 ---
 
-## Estratégias de Otimização Implementadas
+## O que é este relatório?
 
-### 1. Janela de Contexto de Chat (20 Mensagens)
+Durante o desenvolvimento do **English Tutor AI**, utilizamos o **Antigravity** (assistente de codificação IA da Google DeepMind) para projetar a arquitetura, escrever o código, configurar o ambiente e garantir a qualidade por meio de TDD rigoroso. Esse processo tem um custo: o agente consome tokens a cada interação para raciocinar, ler arquivos, gerar código e executar comandos.
 
-**Arquivo:** [`backend/src/main/java/com/english/tutor/application/ChatService.java`](../backend/src/main/java/com/english/tutor/application/ChatService.java)
-
-```java
-int startIdx = Math.max(0, history.size() - 20);
-List<ChatMessage> recentHistory = history.subList(startIdx, history.size());
-```
-
-**Por quê 20?**  
-O Gemini mantém o contexto conversacional de forma eficaz com as últimas 20 trocas. Enviar o histórico completo (que pode crescer indefinidamente) causaria custos exponencialmente maiores sem ganho pedagógico proporcional. Uma sessão de 100 mensagens com contexto completo custaria ~5× mais do que com janela de 20 mensagens.
+Este relatório documenta esse custo de desenvolvimento para fins de transparência e aprendizado.
 
 ---
 
-### 2. Contexto Focado para Feedback (4 Mensagens)
+## 1. Modelos Utilizados no Desenvolvimento
 
-**Arquivo:** [`backend/src/main/java/com/english/tutor/application/ChatService.java`](../backend/src/main/java/com/english/tutor/application/ChatService.java)
+Durante a sessão de desenvolvimento com o **Antigravity**, o sistema alterneu entre os seguintes modelos:
 
-```java
-int fbStartIdx = Math.max(0, updatedHistory.size() - 4);
-List<ChatMessage> feedbackHistory = updatedHistory.subList(fbStartIdx, updatedHistory.size());
-feedbackService.analyzeFeedbackAsync(userId, feedbackHistory);
-```
-
-**Por quê apenas 4 mensagens para o feedback?**  
-O analisador de feedback precisa apenas da **última mensagem do usuário** para identificar erros. As 3 mensagens anteriores servem apenas para fornecer contexto mínimo de qual pergunta o usuário estava respondendo. Enviar o histórico completo causaria:
-1. Análise de mensagens antigas já processadas (duplicação de feedbacks).
-2. Análise de frases do próprio tutor como se fossem do estudante.
-3. Custos desnecessários de tokens.
+| Modelo | Papel na Sessão |
+|--------|----------------|
+| **Gemini Pro / Claude Sonnet (Thinking)** | Agente principal — raciocínio arquitetural, planejamento DDD, TDD, decisões de segurança JWT, análise de bugs complexos |
+| **Gemini Flash** | Subagente de pesquisa — leituras rápidas de arquivos, buscas na web, tarefas com contexto reduzido |
 
 ---
 
-### 3. Instrução Explícita no Prompt (Análise da Última Mensagem Apenas)
+## 2. Consumo Estimado de Tokens do Agente de Desenvolvimento
 
-**Arquivo:** [`backend/src/main/java/com/english/tutor/application/FeedbackService.java`](../backend/src/main/java/com/english/tutor/application/FeedbackService.java)
+O agente reenvia todo o histórico a cada turno (contexto expansivo), o que acumula rapidamente.
 
-```java
-dialogueBuilder.append("\nAnalise APENAS a última fala dita pelo estudante (USER) no diálogo acima.");
-```
+| Tipo | Volume Estimado | Descrição |
+|------|----------------|-----------|
+| **Entrada (Input)** | ~300.000 tokens | System prompt (~15k/turno) + arquivos Java e Angular analisados + histórico acumulado da conversa + logs de execução de comandos |
+| **Saída (Output)** | ~12.000 tokens | Código gerado, explicações em markdown, planos arquiteturais, argumentos de chamadas de ferramentas |
+| **Total** | **~312.000 tokens** | Consumo total acumulado na sessão de desenvolvimento |
 
-```java
-"ATENÇÃO CRÍTICA: Você deve analisar EXCLUSIVAMENTE a última frase dita pelo estudante (USER) no diálogo. " +
-"Ignore completamente todas as frases ditas pelo Tutor (TUTOR) e as frases mais antigas do USER."
-```
-
-**Por que reforçar no prompt?**  
-Mesmo com apenas 4 mensagens no contexto, sem instrução explícita o modelo poderia analisar frases do tutor ou trechos de mensagens anteriores. A instrução dupla (no contexto e no system prompt) garante que apenas a última contribuição do estudante seja avaliada.
+> **Nota:** A cada nova interação, todo o histórico anterior é reenviado ao modelo para garantir que o agente não "esqueça" as decisões de design anteriores. Isso é inerente ao funcionamento de LLMs com contexto longo.
 
 ---
 
-### 4. Modelo Configurável via Propriedade
+## 3. Comparativo: Modelo Pro vs. Flash no Desenvolvimento
 
-**Arquivo:** [`backend/src/main/resources/application.properties`](../backend/src/main/resources/application.properties)
+### Pode-se usar um modelo gratuito para desenvolver com o Antigravity?
 
-```properties
-gemini.model=gemini-3.1-flash-lite
-```
+**Sim.** Modelos como o **Gemini Flash** possuem cotas gratuitas generosas e suportam chamadas de ferramentas. Porém existem trade-offs:
 
-**Injeção no código:**
-```java
-@ConfigProperty(name = "gemini.model", defaultValue = "gemini-3.5-flash")
-String modelName;
-```
+| Métrica | Modelo Pro (usado) | Modelo Flash (gratuito) | Impacto |
+|---------|-------------------|------------------------|---------|
+| **Tempo total de desenvolvimento** | ~15 min | ~35 min (estimado) | O Flash exige mais ciclos de depuração |
+| **Velocidade de resposta** | ~10–15 s/turno | ~3–5 s/turno | Flash é mais rápido, mas erra mais em lógicas complexas |
+| **Turnos necessários** | ~10 turnos | ~22 turnos (estimado) | Mais tentativas para acertar mapeamento JWT, configurações de compilador, etc. |
+| **Limitação de cota** | Sem limite (premium) | Rate-limit da API gratuita | Pausas forçadas para aguardar RPM expirar |
 
-**Por que isso é importante?**  
-Permite trocar o modelo sem recompilar a aplicação. Em desenvolvimento local você pode usar modelos mais baratos; em produção com maior qualidade exigida, pode subir para `gemini-2.5-flash` ou `gemini-2.5-pro` apenas alterando o `application.properties`.
+### Conclusão
 
----
-
-### 5. Feedback Assíncrono (Sem Impacto na Latência do Chat)
-
-**Arquivo:** [`backend/src/main/java/com/english/tutor/application/FeedbackService.java`](../backend/src/main/java/com/english/tutor/application/FeedbackService.java)
-
-```java
-managedExecutor.runAsync(() -> {
-    // chamada à API do Gemini para análise...
-});
-```
-
-**Benefício de performance:**  
-A chamada de análise de feedback ocorre em paralelo, após a resposta do tutor ter sido enviada ao usuário. O estudante recebe a resposta do tutor em ~1–3 segundos, enquanto o feedback é processado nos bastidores (2–5 segundos adicionais).
+O modelo **Pro** é recomendado para tarefas estruturais complexas (DDD, TDD, segurança JWT, configuração de ambiente). O **Flash gratuito** é excelente para prototipações rápidas, funcionalidades isoladas simples e refatorações de interface, onde a velocidade compensa a menor precisão cognitiva.
 
 ---
 
-### 6. Retry com Backoff Exponencial
+## 4. Separação de Contextos
 
-**Arquivo:** [`backend/src/main/java/com/english/tutor/application/FeedbackService.java`](../backend/src/main/java/com/english/tutor/application/FeedbackService.java)
+É importante **não confundir** este relatório com o funcionamento do tutor em produção:
 
-```java
-int retries = 3;
-int delayMs = 1500;
-for (int i = 0; i < retries; i++) {
-    try {
-        response = geminiClient.generateContent(modelName, apiKey, request);
-        break;
-    } catch (Exception ex) {
-        // ...
-        Thread.sleep(delayMs);
-        delayMs *= 2; // 1.5s → 3s → 6s
-    }
-}
-```
+| Contexto | Quem consome tokens? | Para quê? |
+|----------|---------------------|-----------|
+| **Desenvolvimento** (este doc) | Agente Antigravity | Escrever código, planejar arquitetura, corrigir bugs, gerar documentação |
+| **Produção (runtime do tutor)** | A aplicação English Tutor AI | Chamar a API Gemini para responder o estudante e analisar erros de linguagem |
 
-**Por que isso ajuda no consumo de tokens?**  
-Erros `503` da API (comuns no tier gratuito sob alta carga) fazem a requisição falhar. Sem retry, o usuário perderia o feedback completamente e, em algumas implementações, poderia reenviar a mensagem (dobrando os tokens gastos). O retry automático garante que o feedback seja salvo sem interação adicional do usuário.
-
----
-
-## Orçamento Estimado de Tokens
-
-### Por Troca de Mensagem (Chat)
-
-| Componente | Tokens de Entrada | Tokens de Saída | Frequência |
-|-----------|-------------------|-----------------|------------|
-| System prompt (TutorPromptBuilder) | ~200–400 | — | Cada mensagem |
-| Contexto de 20 mensagens | ~800–2.800 | — | Cada mensagem |
-| Resposta do tutor | — | ~150–400 | Cada mensagem |
-| **Total por mensagem** | **~1.000–3.200** | **~150–400** | |
-
-### Por Análise de Feedback (Assíncrono)
-
-| Componente | Tokens de Entrada | Tokens de Saída | Frequência |
-|-----------|-------------------|-----------------|------------|
-| System prompt do analisador | ~250 | — | Cada mensagem do usuário |
-| Contexto de 4 mensagens | ~200–600 | — | Cada mensagem do usuário |
-| Resposta JSON com feedbacks | — | ~100–500 | Cada mensagem do usuário |
-| **Total por feedback** | **~450–850** | **~100–500** | |
-
-### Por Relatório do Dashboard
-
-| Componente | Tokens de Entrada | Tokens de Saída | Frequência |
-|-----------|-------------------|-----------------|------------|
-| System prompt do coordenador | ~150 | — | Sob demanda |
-| Lista completa de feedbacks | ~500–1.800 | — | Sob demanda |
-| Relatório JSON | — | ~300–600 | Sob demanda |
-| **Total por relatório** | **~650–1.950** | **~300–600** | |
-
----
-
-## Comparativo de Modelos
-
-| Modelo | Velocidade | Input (por 1M tokens) | Output (por 1M tokens) | Uso Recomendado |
-|--------|-----------|----------------------|----------------------|----------------|
-| `gemini-3.1-flash-lite` | ⚡ ~1s | ~$0.075 | ~$0.30 | Padrão — alto volume, baixo custo |
-| `gemini-2.5-flash` | ⚡ ~1-2s | ~$0.15 | ~$0.60 | Melhor qualidade de ensino |
-| `gemini-2.5-pro` | 🐢 ~3-5s | ~$1.25 | ~$10.00 | Máxima qualidade pedagógica |
-
-> Preços aproximados baseados no tier pago. O tier gratuito tem limites de RPM e TPM.
-
----
-
-## Configuração para Diferentes Cenários
-
-### Desenvolvimento Local (padrão)
-```properties
-gemini.model=gemini-3.1-flash-lite
-```
-
-### Maior Qualidade de Ensino
-```properties
-gemini.model=gemini-2.5-flash
-```
-
-### Máxima Qualidade (produção premium)
-```properties
-gemini.model=gemini-2.5-pro
-```
-
----
-
-## Isolamento de Banco para Testes
-
-**Arquivo:** [`backend/src/main/resources/application.properties`](../backend/src/main/resources/application.properties)
-
-```properties
-# Desenvolvimento — banco em arquivo (persiste dados entre reinicializações)
-quarkus.datasource.jdbc.url=jdbc:h2:file:./tutor-db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-
-# Testes — banco em memória (isolado, sem locks de arquivo)
-%test.quarkus.datasource.jdbc.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
-```
-
-**Por que isso é crítico?**  
-Sem o perfil `%test`, os testes de integração tentariam abrir o mesmo arquivo de banco que o servidor de desenvolvimento já mantém com um lock. Isso causava falhas aleatórias na suite de testes. O banco em memória é criado e destruído a cada execução de testes, garantindo isolamento completo.
+As decisões de janela de contexto do código (`últimas 20 mensagens`, `últimas 4 para feedback`) são escolhas **arquiteturais** de qualidade e performance do tutor em produção — não são relacionadas ao custo de elaboração do projeto.
