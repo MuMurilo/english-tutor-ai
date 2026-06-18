@@ -1,0 +1,209 @@
+<div class="dashboard-layout">
+  <!-- Sidebar -->
+  <aside class="dashboard-sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <span class="brand-logo">🤖</span>
+        <span class="brand-name">Tutor AI</span>
+      </div>
+    </div>
+
+    <div class="student-profile">
+      <div class="avatar">
+        <span>{{ userEmail.charAt(0).toUpperCase() }}</span>
+      </div>
+      <div class="profile-info">
+        <span class="profile-email" [title]="userEmail">{{ userEmail }}</span>
+        <span class="level-tag" [class]="englishLevel.toLowerCase()">
+          {{ englishLevel === 'BEGINNER' ? '🌱 Iniciante' : (englishLevel === 'INTERMEDIATE' ? '🚀 Intermediário' : '👑 Avançado') }}
+        </span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item" (click)="goToChat()">
+        <span class="nav-icon">💬</span>
+        <span>Conversação</span>
+      </a>
+      <a class="nav-item active">
+        <span class="nav-icon">📊</span>
+        <span>Dashboard</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn-logout" (click)="logout()">
+        <span class="logout-icon">🚪</span>
+        <span>Sair</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Dashboard Area -->
+  <main class="dashboard-main">
+    <!-- Header -->
+    <header class="dashboard-header">
+      <div class="header-title">
+        <h2>Painel de Progresso</h2>
+        <p>Acompanhe suas conquistas e pontos de melhoria linguística</p>
+      </div>
+      <button class="btn-primary-action" (click)="goToChat()" id="dashboard-chat-btn">
+        <span>Praticar Inglês 💬</span>
+      </button>
+    </header>
+
+    <!-- Scrollable content -->
+    <div class="dashboard-content">
+      <!-- Stats summary cards -->
+      <div class="stats-grid">
+        <div class="stat-card error-stat">
+          <div class="stat-icon">⚠️</div>
+          <div class="stat-details">
+            <span class="stat-value">{{ errors.length }}</span>
+            <span class="stat-label">Pontos a Melhorar</span>
+          </div>
+        </div>
+        <div class="stat-card success-stat">
+          <div class="stat-icon">👑</div>
+          <div class="stat-details">
+            <span class="stat-value">{{ consolidated.length }}</span>
+            <span class="stat-label">Conhecimentos Consolidados</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Relatório Didático de IA -->
+      @if (!isLoading && (errors.length > 0 || consolidated.length > 0)) {
+        <div class="pedagogical-report-card">
+          <div class="report-header">
+            <div class="report-header-title">
+              <span class="report-icon">🎓</span>
+              <h3>Análise Pedagógica Personalizada</h3>
+            </div>
+            <button class="btn-refresh-report" (click)="generateDidacticReport()" [disabled]="isReportLoading">
+              {{ isReportLoading ? 'Gerando Análise...' : 'Atualizar Análise 🔄' }}
+            </button>
+          </div>
+
+          @if (isReportLoading) {
+            <div class="report-loading-state">
+              <div class="spinner-small"></div>
+              <p>O tutor pedagógico está reavaliando seu histórico para gerar uma nova análise didática...</p>
+            </div>
+          } @else if (report) {
+            <div class="report-body">
+              <p class="report-summary">“{{ report.summary }}”</p>
+              
+              <div class="report-insights">
+                <!-- Pontos Fortes -->
+                <div class="insight-group strengths-group">
+                  <h4>🌟 Seus Pontos Fortes</h4>
+                  <ul>
+                    @for (strength of report.strengths; track strength) {
+                      <li>{{ strength }}</li>
+                    }
+                  </ul>
+                </div>
+
+                <!-- Pontos de Atenção -->
+                <div class="insight-group weaknesses-group">
+                  <h4>🎯 Foco Recomendado</h4>
+                  <ul>
+                    @for (weakness of report.weaknesses; track weakness) {
+                      <li>{{ weakness }}</li>
+                    }
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Plano de Ação -->
+              <div class="report-action-plan">
+                <span class="action-badge">Plano de Estudos Prático</span>
+                <p>{{ report.actionPlan }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Main Columns Grid -->
+      @if (isLoading) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Analisando seu histórico linguístico...</p>
+        </div>
+      } @else if (errors.length === 0 && consolidated.length === 0) {
+        <div class="empty-state">
+          <span class="empty-icon">📈</span>
+          <h3>Nenhum feedback disponível ainda</h3>
+          <p>Inicie uma conversa no chat com o professor de IA. Suas frases serão analisadas em tempo real e os resultados aparecerão aqui!</p>
+          <button class="btn-primary-action" (click)="goToChat()">Iniciar Conversa</button>
+        </div>
+      } @else {
+        <div class="columns-grid">
+          <!-- Errors column -->
+          <section class="dashboard-column">
+            <h3 class="column-title error-title">
+              <span>⚠️</span> Pontos a Melhorar (Gramática)
+            </h3>
+            <div class="cards-list">
+              @for (err of (showAllErrors ? errors : errors.slice(0, 5)); track err.id) {
+                <div class="feedback-card error-card">
+                  <div class="card-phrases">
+                    <div class="phrase wrong-phrase">
+                      <span class="phrase-label">Você disse:</span>
+                      <p>“{{ err.originalPhrase }}”</p>
+                    </div>
+                    <div class="phrase correct-phrase">
+                      <span class="phrase-label">Forma correta:</span>
+                      <p>“{{ err.content }}”</p>
+                    </div>
+                  </div>
+                  <div class="card-explanation">
+                    <span class="explanation-icon">💡</span>
+                    <p>{{ err.explanation }}</p>
+                  </div>
+                </div>
+              }
+              @if (errors.length > 5) {
+                <button class="btn-toggle-view" (click)="showAllErrors = !showAllErrors">
+                  {{ showAllErrors ? 'Mostrar Menos ⬆️' : 'Ver Todos os ' + errors.length + ' erros ⬇️' }}
+                </button>
+              }
+            </div>
+          </section>
+
+          <!-- Consolidated Vocabulary column -->
+          <section class="dashboard-column">
+            <h3 class="column-title success-title">
+              <span>👑</span> Vocabulários Consolidados (Léxico)
+            </h3>
+            <div class="cards-list">
+              @for (item of (showAllConsolidated ? consolidated : consolidated.slice(0, 5)); track item.id) {
+                <div class="feedback-card success-card">
+                  <div class="card-header-success">
+                    <span class="vocab-badge">Consolidado</span>
+                    <h4>“{{ item.originalPhrase }}”</h4>
+                  </div>
+                  <div class="phrase context-phrase">
+                    <span class="phrase-label">Exemplo de uso:</span>
+                    <p>“{{ item.content }}”</p>
+                  </div>
+                  <div class="card-explanation">
+                    <span class="explanation-icon">ℹ️</span>
+                    <p>{{ item.explanation }}</p>
+                  </div>
+                </div>
+              }
+              @if (consolidated.length > 5) {
+                <button class="btn-toggle-view" (click)="showAllConsolidated = !showAllConsolidated">
+                  {{ showAllConsolidated ? 'Mostrar Menos ⬆️' : 'Ver Todos os ' + consolidated.length + ' vocabulários ⬇️' }}
+                </button>
+              }
+            </div>
+          </section>
+        </div>
+      }
+    </div>
+  </main>
+</div>

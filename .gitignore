@@ -1,0 +1,72 @@
+# ============================================================
+#  ROOT .gitignore — English Tutor AI Monorepo
+# ============================================================
+
+# ----- OS -----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ----- Editor / IDE -----
+.idea/
+.vscode/
+*.ipr
+*.iml
+*.iws
+*.swp
+*.swo
+.factorypath
+nb-configuration.xml
+
+# ============================================================
+#  BACKEND  (Quarkus / Maven)
+# ============================================================
+
+backend/target/
+backend/pom.xml.tag
+backend/pom.xml.releaseBackup
+backend/pom.xml.versionsBackup
+backend/release.properties
+backend/.flattened-pom.xml
+backend/.classpath
+backend/.project
+backend/.settings/
+backend/bin/
+backend/.quarkus/cli/plugins/
+backend/.certs/
+
+# H2 database files — never commit data or logs
+backend/*.mv.db
+backend/*.trace.db
+backend/*.lock.db
+
+# JWT key files — never commit private keys
+backend/src/main/resources/privatekey.pem
+backend/src/main/resources/publickey.pem
+
+# Environment / secrets
+backend/.env
+
+# ============================================================
+#  FRONTEND  (Angular / Node)
+# ============================================================
+
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+
+# ============================================================
+#  AGENTS / WORKSPACE INTERNAL FILES
+# ============================================================
+
+.agents/
+.specify/
+AGENTS.md
+
+# ============================================================
+#  MISC
+# ============================================================
+
+*.orig
+*.rej
+*.patch

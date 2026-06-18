@@ -1,0 +1,125 @@
+<div class="chat-layout">
+  <!-- Sidebar -->
+  <aside class="chat-sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <span class="brand-logo">🤖</span>
+        <span class="brand-name">Tutor AI</span>
+      </div>
+    </div>
+
+    <div class="student-profile">
+      <div class="avatar">
+        <span>{{ userEmail.charAt(0).toUpperCase() }}</span>
+      </div>
+      <div class="profile-info">
+        <span class="profile-email" [title]="userEmail">{{ userEmail }}</span>
+        <span class="level-tag" [class]="englishLevel.toLowerCase()">
+          {{ englishLevel === 'BEGINNER' ? '🌱 Iniciante' : (englishLevel === 'INTERMEDIATE' ? '🚀 Intermediário' : '👑 Avançado') }}
+        </span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item active">
+        <span class="nav-icon">💬</span>
+        <span>Conversação</span>
+      </a>
+      <a class="nav-item" (click)="goToDashboard()">
+        <span class="nav-icon">📊</span>
+        <span>Dashboard</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn-logout" (click)="logout()">
+        <span class="logout-icon">🚪</span>
+        <span>Sair</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Chat Section -->
+  <main class="chat-main">
+    <!-- Chat Header -->
+    <header class="chat-header">
+      <div class="tutor-info">
+        <div class="tutor-status-dot"></div>
+        <div>
+          <h3>Professor Gemini</h3>
+          <p>Online • Customizado para seu nível</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="mobile-menu-btn" (click)="logout()" title="Sair">🚪</button>
+      </div>
+    </header>
+
+    <!-- Chat Messages Window -->
+    <div class="chat-messages" #scrollContainer>
+      @if (isLoading) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Carregando histórico de conversas...</p>
+        </div>
+      } @else if (allMessages.length === 0) {
+        <div class="empty-state">
+          <span class="empty-icon">👋</span>
+          <h3>Start the conversation!</h3>
+          <p>Diga "Hello" ou faça uma pergunta em inglês para o professor começar.</p>
+        </div>
+      }
+
+      @if (allMessages.length > visibleMessages.length) {
+        <div class="load-older-container">
+          <button type="button" class="btn-load-older" (click)="loadOlderMessages()">
+            Mostrar mensagens anteriores ⬆
+          </button>
+        </div>
+      }
+
+      @for (msg of visibleMessages; track msg.timestamp + msg.content) {
+        <div class="message-row" [class.user-row]="msg.sender === 'USER'" [class.tutor-row]="msg.sender === 'TUTOR'">
+          <div class="message-bubble">
+            <div class="message-content">{{ msg.content }}</div>
+            <div class="message-time">
+              {{ msg.timestamp | date:'HH:mm' }}
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Typing Indicator -->
+      @if (isSending) {
+        <div class="message-row tutor-row">
+          <div class="message-bubble typing-bubble">
+            <div class="typing-indicator">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Message Input Bar -->
+    <footer class="chat-footer">
+      <div class="input-form">
+        <input
+          type="text"
+          [formControl]="messageControl"
+          placeholder="Digite sua mensagem em inglês..."
+          autocomplete="off"
+          (keyup.enter)="sendMessage()"
+          id="chat-message-input"
+        />
+        <button type="button" (click)="sendMessage()" [disabled]="messageControl.invalid || isSending" class="btn-send" id="chat-send-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+            <path d="M1.946 9.315c-.522-.174-.527-.455.01-.634l20.587-6.862c.526-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z"/>
+          </svg>
+        </button>
+      </div>
+    </footer>
+  </main>
+</div>

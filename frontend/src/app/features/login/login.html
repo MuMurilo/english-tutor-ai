@@ -1,0 +1,161 @@
+<div class="auth-container">
+  <div class="blur-glow-1"></div>
+  <div class="blur-glow-2"></div>
+
+  <div class="auth-card">
+    <div class="auth-header">
+      <span class="logo-icon">🤖</span>
+      <h2>{{ isLoginMode ? 'Welcome back!' : 'Create your account' }}</h2>
+      <p>{{ isLoginMode ? 'Acesse sua área de estudos para continuar praticando' : 'Escolha seu nível de inglês e inicie sua jornada' }}</p>
+    </div>
+
+    <!-- Error/Success Alerts -->
+    @if (errorMessage) {
+      <div class="alert alert-danger" role="alert" id="auth-error-alert">
+        <span>⚠️</span>
+        <span>{{ errorMessage }}</span>
+      </div>
+    }
+    @if (successMessage) {
+      <div class="alert alert-success" role="alert" id="auth-success-alert">
+        <span>✅</span>
+        <span>{{ successMessage }}</span>
+      </div>
+    }
+
+    <!-- LOGIN FORM -->
+    @if (isLoginMode) {
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmitLogin()" id="login-form">
+        <div class="form-group">
+          <label for="login-email">E-mail</label>
+          <div class="input-wrapper">
+            <input
+              type="email"
+              id="login-email"
+              formControlName="email"
+              placeholder="seuemail@exemplo.com"
+              [class.invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+            />
+          </div>
+          @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+            <span class="error-text">Informe um e-mail válido</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="login-password">Senha</label>
+          <div class="input-wrapper">
+            <input
+              type="password"
+              id="login-password"
+              formControlName="password"
+              placeholder="••••••••"
+              [class.invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+            />
+          </div>
+          @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+            <span class="error-text">A senha é obrigatória</span>
+          }
+        </div>
+
+        <button type="submit" class="btn-primary" [disabled]="isLoading" id="login-submit-btn">
+          @if (isLoading) {
+            <div class="spinner"></div>
+          } @else {
+            Entrar
+          }
+        </button>
+      </form>
+    } @else {
+      <!-- REGISTER FORM -->
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmitRegister()" id="register-form">
+        <div class="form-group">
+          <label for="register-email">E-mail</label>
+          <div class="input-wrapper">
+            <input
+              type="email"
+              id="register-email"
+              formControlName="email"
+              placeholder="seuemail@exemplo.com"
+              [class.invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+            />
+          </div>
+          @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+            <span class="error-text">Informe um e-mail válido</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="register-password">Senha (mín. 6 caracteres)</label>
+          <div class="input-wrapper">
+            <input
+              type="password"
+              id="register-password"
+              formControlName="password"
+              placeholder="••••••••"
+              [class.invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+            />
+          </div>
+          @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+            <span class="error-text">Senha deve ter no mínimo 6 caracteres</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label>Nível de Inglês</label>
+          <div class="level-selector-grid">
+            <div
+              class="level-card"
+              [class.selected]="registerForm.get('englishLevel')?.value === 'BEGINNER'"
+              (click)="selectLevel('BEGINNER')"
+              id="level-card-beginner"
+            >
+              <span class="level-emoji">🌱</span>
+              <span class="level-name">Iniciante</span>
+              <span class="level-desc">Básico</span>
+            </div>
+            <div
+              class="level-card"
+              [class.selected]="registerForm.get('englishLevel')?.value === 'INTERMEDIATE'"
+              (click)="selectLevel('INTERMEDIATE')"
+              id="level-card-intermediate"
+            >
+              <span class="level-emoji">🚀</span>
+              <span class="level-name">Intermediário</span>
+              <span class="level-desc">Médio</span>
+            </div>
+            <div
+              class="level-card"
+              [class.selected]="registerForm.get('englishLevel')?.value === 'ADVANCED'"
+              (click)="selectLevel('ADVANCED')"
+              id="level-card-advanced"
+            >
+              <span class="level-emoji">👑</span>
+              <span class="level-name">Avançado</span>
+              <span class="level-desc">Fluente</span>
+            </div>
+          </div>
+          @if (registerForm.get('englishLevel')?.invalid && registerForm.get('englishLevel')?.touched) {
+            <span class="error-text">Selecione o seu nível de inglês</span>
+          }
+        </div>
+
+        <button type="submit" class="btn-primary" [disabled]="isLoading" id="register-submit-btn">
+          @if (isLoading) {
+            <div class="spinner"></div>
+          } @else {
+            Criar Conta
+          }
+        </button>
+      </form>
+    }
+
+    <!-- Tab Toggle links -->
+    <div class="auth-toggle">
+      {{ isLoginMode ? 'Não possui uma conta?' : 'Já possui uma conta?' }}
+      <a class="toggle-link" (click)="toggleMode()" id="auth-toggle-link">
+        {{ isLoginMode ? 'Cadastre-se' : 'Entrar' }}
+      </a>
+    </div>
+  </div>
+</div>
