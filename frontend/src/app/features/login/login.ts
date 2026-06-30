@@ -64,7 +64,8 @@ export class Login {
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = err.error?.message || 'Erro ao realizar login. Tente novamente.';
+        console.error('Erro no login:', err);
+        this.errorMessage = err.message || 'Erro ao realizar login. Tente novamente.';
         this.cdr.detectChanges();
       },
     });
@@ -92,7 +93,8 @@ export class Login {
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = err.error?.message || 'Erro ao realizar cadastro. Tente novamente.';
+        console.error('Erro no cadastro:', err);
+        this.errorMessage = err.message || 'Erro ao realizar cadastro. Tente novamente.';
         this.cdr.detectChanges();
       },
     });

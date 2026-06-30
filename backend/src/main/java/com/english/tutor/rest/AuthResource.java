@@ -1,6 +1,7 @@
 package com.english.tutor.rest;
 
 import com.english.tutor.application.AuthService;
+import org.jboss.logging.Logger;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -13,6 +14,8 @@ import java.util.Optional;
 @Consumes(MediaType.APPLICATION_JSON)
 public class AuthResource {
 
+    private static final Logger LOG = Logger.getLogger(AuthResource.class);
+
     @Inject
     AuthService authService;
 
@@ -22,13 +25,16 @@ public class AuthResource {
         try {
             boolean success = authService.register(request.email, request.password, request.englishLevel);
             if (success) {
+                LOG.info("Usuário cadastrado com sucesso: " + request.email);
                 return Response.status(Response.Status.CREATED).build();
             } else {
+                LOG.warn("Falha no cadastro: E-mail já cadastrado - " + request.email);
                 return Response.status(Response.Status.BAD_REQUEST)
                         .entity(Map.of("message", "E-mail já cadastrado no sistema"))
                         .build();
             }
         } catch (IllegalArgumentException e) {
+            LOG.warn("Falha de validação no cadastro de " + request.email + ": " + e.getMessage());
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(Map.of("message", e.getMessage()))
                     .build();
@@ -40,8 +46,10 @@ public class AuthResource {
     public Response login(LoginRequest request) {
         Optional<String> tokenOpt = authService.login(request.email, request.password);
         if (tokenOpt.isPresent()) {
+            LOG.info("Login bem-sucedido para o usuário: " + request.email);
             return Response.ok(Map.of("token", tokenOpt.get())).build();
         } else {
+            LOG.warn("Falha de login para o usuário: " + request.email + " - E-mail ou senha incorretos");
             return Response.status(Response.Status.UNAUTHORIZED)
                     .entity(Map.of("message", "E-mail ou senha incorretos"))
                     .build();
