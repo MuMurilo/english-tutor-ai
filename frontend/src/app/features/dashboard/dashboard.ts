@@ -5,10 +5,12 @@ import { DashboardService } from '../../core/services/dashboard.service';
 import { Feedback, DidacticReport } from '../../core/models/tutor.models';
 import { AuthService } from '../../core/services/auth.service';
 
+import { SidebarComponent } from '../../shared/components/sidebar/sidebar';
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, SidebarComponent],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })

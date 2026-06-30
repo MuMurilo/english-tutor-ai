@@ -6,10 +6,12 @@ import { ChatService } from '../../core/services/chat.service';
 import { ChatMessage } from '../../core/models/tutor.models';
 import { AuthService } from '../../core/services/auth.service';
 
+import { SidebarComponent } from '../../shared/components/sidebar/sidebar';
+
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, SidebarComponent],
   templateUrl: './chat.html',
   styleUrl: './chat.css'
 })
@@ -150,10 +152,6 @@ export class Chat implements OnInit {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
-  }
-
-  goToDashboard(): void {
-    this.router.navigate(['/dashboard']);
   }
 
   private scrollToBottom(): void {

@@ -1,43 +1,6 @@
 <div class="chat-layout">
   <!-- Sidebar -->
-  <aside class="chat-sidebar">
-    <div class="sidebar-header">
-      <div class="brand">
-        <span class="brand-logo">🤖</span>
-        <span class="brand-name">Tutor AI</span>
-      </div>
-    </div>
-
-    <div class="student-profile">
-      <div class="avatar">
-        <span>{{ userEmail.charAt(0).toUpperCase() }}</span>
-      </div>
-      <div class="profile-info">
-        <span class="profile-email" [title]="userEmail">{{ userEmail }}</span>
-        <span class="level-tag" [class]="englishLevel.toLowerCase()">
-          {{ englishLevel === 'BEGINNER' ? '🌱 Iniciante' : (englishLevel === 'INTERMEDIATE' ? '🚀 Intermediário' : '👑 Avançado') }}
-        </span>
-      </div>
-    </div>
-
-    <nav class="sidebar-nav">
-      <a class="nav-item active">
-        <span class="nav-icon">💬</span>
-        <span>Conversação</span>
-      </a>
-      <a class="nav-item" (click)="goToDashboard()">
-        <span class="nav-icon">📊</span>
-        <span>Dashboard</span>
-      </a>
-    </nav>
-
-    <div class="sidebar-footer">
-      <button class="btn-logout" (click)="logout()">
-        <span class="logout-icon">🚪</span>
-        <span>Sair</span>
-      </button>
-    </div>
-  </aside>
+  <app-sidebar activeTab="chat"></app-sidebar>
 
   <!-- Main Chat Section -->
   <main class="chat-main">
