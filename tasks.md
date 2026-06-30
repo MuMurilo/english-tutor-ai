@@ -17,16 +17,16 @@ Este plano divide os problemas críticos de segurança e de arquitetura listados
   - Adicionar validação de tamanho máximo de senha em `User.java` para evitar truncamento silencioso do BCrypt.
   - Corrigir a expressão de validação de e-mail em `User.java` para evitar formatos inválidos.
 
-- [ ] **Task 1.4: Segurança de Rotas e Navegação no Frontend (S14)**
+- [x] **Task 1.4: Segurança de Rotas e Navegação no Frontend (S14)**
   - Criar `authGuard` funcional no Angular.
   - Proteger as rotas `/chat` e `/dashboard` usando o `authGuard` em `app.routes.ts`.
 
-- [ ] **Task 1.5: Interceptor de Autenticação e Tratamento de 401 no Frontend (S11 & S12)**
+- [x] **Task 1.5: Interceptor de Autenticação e Tratamento de 401 no Frontend (S11 & S12)**
   - Criar um `authInterceptor` para anexar o token JWT automaticamente aos cabeçalhos de requisição de forma centralizada.
   - Remover lógica de `getHeaders()` duplicada em `chat.service.ts` e `dashboard.service.ts`.
   - Garantir que o `errorInterceptor` capture status `401`, execute logout do `AuthService` e redirecione o usuário para a tela de `/login`.
 
-- [ ] **Task 1.6: Armazenamento Seguro, Decodificação e Validação do JWT (S9 & S10)**
+- [x] **Task 1.6: Armazenamento Seguro, Decodificação e Validação do JWT (S9 & S10)**
   - Mover a decodificação de JWT e obtenção do `email` e `englishLevel` do usuário para o `AuthService` para eliminar a duplicação do `extractUserInfo()` em `chat.ts` e `dashboard.ts`.
   - Tornar a decodificação do JWT robusta, com verificações de integridade estrutural.
 
