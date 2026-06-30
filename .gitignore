@@ -70,3 +70,7 @@ frontend/.angular/
 *.orig
 *.rej
 *.patch
+
+# Local-only project report
+docs/PROJECT_ANALYSIS_REPORT.md
+
