@@ -36,3 +36,7 @@ Este plano divide os problemas críticos de segurança listados no [PROJECT_ANAL
   - Substituir todos os `System.err.println` em `ChatService.java` e `DashboardService.java` pelo logger `org.jboss.logging.Logger`.
   - Migrar o uso de `java.util.logging` em `FeedbackParser.java` para o padrão `org.jboss.logging.Logger`.
   - Garantir o uso unificado e consistente de logs no backend.
+
+- [x] **Task 2.2: Correção de Inicialização e Dependência de Docker (Dev Services & Analytics)**
+  - Desativar Dev Services e telemetria interativa do Quarkus no `application.properties`.
+  - Atualizar script de execução `run-project.bat` com parâmetros robustos não-interativos.
