@@ -49,7 +49,7 @@ description: "Lista de tarefas atômicas para desenvolvimento do Tutor de Inglê
 
 - [x] T008 [P] [US1] Criar teste unitário em JUnit 5 para as regras de validação de dados da entidade `User` (e-mail duplicado, formato de e-mail e nível de inglês válido) em `backend/src/test/java/.../domain/UserTest.java`.
 - [x] T009 [P] [US1] Criar teste de integração JAX-RS com REST-Assured em `backend/src/test/java/.../rest/AuthResourceTest.java` para validar geração do token JWT.
-- [x] T010 [P] [US1] Criar teste no Angular Jasmine em `frontend/src/app/features/login/login.component.spec.ts` para verificar o formulário reativo.
+- [x] T010 [P] [US1] Criar teste no Angular usando Vitest em `frontend/src/app/features/login/login.component.spec.ts` para verificar o formulário reativo.
 
 ### Implementação da US1 (Codificar para passar nos testes - Green)
 

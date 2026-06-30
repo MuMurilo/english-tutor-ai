@@ -20,7 +20,10 @@ infrastructure/ ← Implementações Técnicas (JPA, REST Client, JWT)
 
 ### `domain/` — Núcleo da Aplicação
 
-Contém apenas lógica de negócio pura. **Sem dependências de frameworks.**
+Contém a lógica de negócio central.
+
+> [!NOTE]
+> **Exceção temporária de acoplamento**: A classe `FeedbackParser.java` usa bibliotecas Jackson (`ObjectMapper`, `@JsonIgnoreProperties`) para conversão de JSON no domínio, o que configura um acoplamento temporário a ser refatorado futuramente para a infraestrutura/aplicação.
 
 | Arquivo | Responsabilidade |
 |---------|-----------------|
@@ -54,8 +57,8 @@ Implementa as interfaces do domínio e fornece adaptadores para sistemas externo
 | `GeminiClient.java` | Interface `@RegisterRestClient` para a API do Gemini (MicroProfile REST Client) |
 | `GeminiRequest.java` | Monta o payload JSON da requisição (system instruction + conversation turns) |
 | `GeminiResponse.java` | Desserializa a resposta do Gemini (candidates → content → parts → text) |
-| `persistence/` | Implementações Panache dos repositórios do domínio |
-| `security/` | Configuração JWT e filtros de segurança |
+| `repository/` | Implementações Panache dos repositórios do domínio |
+| `security/` | Criptografia de senhas (BCrypt) e filtros de segurança JWT |
 
 ### `rest/` — Controladores HTTP
 

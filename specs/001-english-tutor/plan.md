@@ -8,12 +8,12 @@
 
 ## Resumo
 A funcionalidade consiste em criar um aplicativo web monorepo composto de:
-1.  **Backend (Java 23 + Quarkus 3)** que expõe APIs seguras para gerenciamento de usuários, mensagens de chat e armazenamento de feedbacks de erros e conquistas. O backend se integra de forma assíncrona ao Gemini da Google para gerar respostas dinâmicas e análises de progresso. A arquitetura segue estritamente os padrões DDD (Domain-Driven Design).
+1.  **Backend (Java 21 + Quarkus 3)** que expõe APIs seguras para gerenciamento de usuários, mensagens de chat e armazenamento de feedbacks de erros e conquistas. O backend se integra de forma assíncrona ao Gemini da Google para gerar respostas dinâmicas e análises de progresso. A arquitetura segue estritamente os padrões DDD (Domain-Driven Design).
 2.  **Frontend (Angular 22)** com uma interface web interativa e responsiva contendo telas de Login/Cadastro, Dashboard de progresso e Janela de Chat.
 
 ## Contexto Técnico
 
-**Linguagem/Versão**: Java 23 (Backend) e TypeScript / HTML / CSS (Frontend)
+**Linguagem/Versão**: Java 21 (Backend) e TypeScript / HTML / CSS (Frontend)
 
 **Dependências Principais**:
 - **Backend (Quarkus)**: 
@@ -30,8 +30,8 @@ A funcionalidade consiste em criar um aplicativo web monorepo composto de:
 **Armazenamento**: Banco de dados H2 gravado em arquivo local (`tutor-db.mv.db` na raiz de Estudos de IA).
 
 **Testes**: 
-- **Backend**: `quarkus-junit5`, `rest-assured` (para testes de endpoints e de integração) e `mockito-core` (para mockagem de serviços externos de IA).
-- **Frontend**: `Jasmine` e `Karma` (testes unitários e de componentes nativos do Angular CLI).
+- **Backend**: `quarkus-junit5`, `rest-assured` (para testes de endpoints e de integração).
+- **Frontend**: `Vitest` (testes rápidos unitários e de renderização de componentes).
 
 **Plataforma Alvo**: Web Desktop e Mobile.
 
@@ -48,7 +48,7 @@ A funcionalidade consiste em criar um aplicativo web monorepo composto de:
 1.  **Regra de Domínio Isolado**: Respeitada. A pasta `domain/` conterá apenas classes Java puras, sem annotations do Quarkus/Panache/Hibernate.
 2.  **Regra de TDD Rígido**: Respeitada. O fluxo de tarefas exige o desenvolvimento dos arquivos de testes (`*Test.java` e `*.spec.ts`) previamente e em estado de falha (Red).
 3.  **Regra de Logs Abstratos**: Respeitada. Uma interface `LoggerService` será injetada no domínio e sua implementação residirá em `infrastructure/`.
-4.  **Uso de Tecnologias**: Respeitado (Java 23, Quarkus, Angular, Maven, Jasmine/Karma e JUnit 5).
+4.  **Uso de Tecnologias**: Respeitado (Java 21, Quarkus, Angular, Maven, Vitest e JUnit 5).
 
 ## Estrutura do Projeto
 
@@ -95,7 +95,7 @@ frontend/
 │   │   │   ├── login/            # Tela de Login e Registro
 │   │   │   ├── dashboard/        # Painel contendo cartões de erros e acertos
 │   │   │   └── chat/             # Janela interativa do chat com o tutor
-│   └── test.ts                   # Ponto de entrada de testes do Karma/Jasmine
+│   └── (Arquivos de testes unitários *.spec.ts executados via Vitest)
 ```
 
 **Decisão de Estrutura**: Estrutura Monorepo padrão com divisão rígida em 4 camadas de DDD no backend Java/Quarkus e divisão modular baseada em rotas (`features`) no frontend Angular.

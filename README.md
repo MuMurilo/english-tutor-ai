@@ -358,7 +358,7 @@ Saída esperada: `Tests run: 15, Failures: 0, Errors: 0, Skipped: 0  BUILD SUCCE
 | `GeminiClientTest` | Unitário | Declaração da interface do cliente REST |
 | `AuthResourceTest` | Integração | Fluxo completo de cadastro + login |
 | `DashboardResourceTest` | Integração | Endpoints do dashboard com JWT autenticado |
-| `GreetingResourceTest` | Integração | Endpoint de health check |
+| `GreetingResourceTest` | Integração | Endpoint básico de boas-vindas (`/hello`) |
 
 ### Frontend — 10 testes Vitest
 
@@ -403,7 +403,14 @@ project-speckit/
 │       │   │   ├── infrastructure/
 │       │   │   │   ├── GeminiClient.java          ← Interface MicroProfile REST Client
 │       │   │   │   ├── GeminiRequest.java         ← Construtor de payload de requisição
-│       │   │   │   └── GeminiResponse.java        ← Desserializador de resposta
+│       │   │   │   ├── GeminiResponse.java        ← Desserializador de resposta
+│       │   │   │   ├── repository/                ← Implementações Panache dos repositórios
+│       │   │   │   │   ├── ChatMessageRepositoryImpl.java
+│       │   │   │   │   ├── FeedbackRepositoryImpl.java
+│       │   │   │   │   └── UserRepositoryImpl.java
+│       │   │   │   └── security/                  ← Criptografia de senhas e filtros JWT
+│       │   │   │       ├── JwtSecurityContextFilter.java
+│       │   │   │       └── PasswordHasher.java
 │       │   │   └── rest/
 │       │   │       ├── AuthResource.java          ← POST /api/auth/register|login
 │       │   │       ├── ChatResource.java          ← GET|POST /api/chat/history|send

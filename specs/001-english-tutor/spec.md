@@ -4,7 +4,7 @@
 
 **Criado em**: 2026-06-18
 
-**Status**: Rascunho
+**Status**: Concluído
 
 **Entrada**: Descrição do usuário: "Aplicativo de tutor de inglês usando IA (API do Gemini), com autenticação/login de usuário, banco H2 local, dashboard com histórico de erros/acertos e seleção de nível de inglês no cadastro."
 
