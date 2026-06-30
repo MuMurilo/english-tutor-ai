@@ -28,27 +28,15 @@ export class Dashboard implements OnInit {
   isReportLoading = false;
 
   ngOnInit(): void {
-    if (!this.authService.isAuthenticated()) {
-      this.router.navigate(['/login']);
-      return;
+    const userInfo = this.authService.getUserInfo();
+    if (userInfo) {
+      this.userEmail = userInfo.email;
+      this.englishLevel = userInfo.englishLevel;
+    } else {
+      this.userEmail = 'Estudante';
+      this.englishLevel = 'BEGINNER';
     }
-
-    this.extractUserInfo();
     this.loadFeedbackData();
-  }
-
-  extractUserInfo(): void {
-    const token = this.authService.getToken();
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        this.userEmail = payload.upn || 'Estudante';
-        this.englishLevel = payload.englishLevel || 'BEGINNER';
-      } catch (e) {
-        this.userEmail = 'Estudante';
-        this.englishLevel = 'BEGINNER';
-      }
-    }
   }
 
   loadFeedbackData(): void {

@@ -6,6 +6,11 @@ export interface LoginResponse {
   token: string;
 }
 
+export interface UserInfo {
+  email: string;
+  englishLevel: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -42,6 +47,22 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return !!this.getToken();
+  }
+
+  getUserInfo(): UserInfo | null {
+    const token = this.getToken();
+    if (!token) return null;
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) return null;
+      const payload = JSON.parse(atob(parts[1]));
+      return {
+        email: payload.upn || 'Estudante',
+        englishLevel: payload.englishLevel || 'BEGINNER',
+      };
+    } catch (e) {
+      return null;
+    }
   }
 
   logout(): void {
