@@ -41,7 +41,7 @@ Este plano divide os problemas críticos de segurança e de arquitetura listados
   - Modificar o `DashboardResource.java` para injetar o respectivo service e evitar chamadas diretas ao `FeedbackRepository`.
   - Remover o arquivo de boilerplate `GreetingResource.java` e seus testes correspondentes.
 
-- [ ] **Task 2.3: Centralização de Configurações, Modelos e Componentes no Frontend (A7, A10, A11 & A13)**
+- [x] **Task 2.3: Centralização de Configurações, Modelos e Componentes no Frontend (A7, A10, A11 & A13)**
   - Criar um arquivo de configuração centralizado para a API (ex: `environment.ts` ou injetar via provider).
   - Centralizar interfaces de modelo (`ChatMessage`, `Feedback`, `DidacticReport`) em uma pasta compartilhada `src/app/core/models/` ou similar.
   - Criar um `SidebarComponent` compartilhado em uma nova pasta `src/app/shared/components/` para eliminar a duplicação massiva de HTML e CSS da sidebar.
