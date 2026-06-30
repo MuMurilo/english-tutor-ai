@@ -4,7 +4,8 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { Chat } from './chat';
-import { ChatService, ChatMessage } from '../../core/services/chat.service';
+import { ChatService } from '../../core/services/chat.service';
+import { ChatMessage } from '../../core/models/tutor.models';
 import { AuthService } from '../../core/services/auth.service';
 
 class MockChatService {

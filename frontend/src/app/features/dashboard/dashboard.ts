@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { DashboardService, Feedback, DidacticReport } from '../../core/services/dashboard.service';
+import { DashboardService } from '../../core/services/dashboard.service';
+import { Feedback, DidacticReport } from '../../core/models/tutor.models';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({

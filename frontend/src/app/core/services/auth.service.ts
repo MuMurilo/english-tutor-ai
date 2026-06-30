@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface LoginResponse {
   token: string;
@@ -17,7 +18,7 @@ export interface UserInfo {
 export class AuthService {
   private http = inject(HttpClient);
   private readonly tokenKey = 'tutor_auth_token';
-  private readonly apiUrl = 'http://localhost:8080'; // Backend runs on 8080 by default
+  private readonly apiUrl = environment.apiUrl;
 
   login(email: string, password: string): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/api/auth/login`, { email, password }).pipe(

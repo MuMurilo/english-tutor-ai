@@ -2,7 +2,8 @@ import { Component, OnInit, inject, ElementRef, ViewChild, AfterViewChecked, Cha
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ChatService, ChatMessage } from '../../core/services/chat.service';
+import { ChatService } from '../../core/services/chat.service';
+import { ChatMessage } from '../../core/models/tutor.models';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({

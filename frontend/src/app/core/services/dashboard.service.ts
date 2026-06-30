@@ -1,30 +1,15 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-export interface Feedback {
-  id?: number;
-  userId: number;
-  type: 'ERROR' | 'CONSOLIDATED';
-  originalPhrase: string;
-  content: string;
-  explanation: string;
-  timestamp: string;
-}
-
-export interface DidacticReport {
-  summary: string;
-  strengths: string[];
-  weaknesses: string[];
-  actionPlan: string;
-}
+import { environment } from '../../../environments/environment';
+import { Feedback, DidacticReport } from '../models/tutor.models';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DashboardService {
   private http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8080';
+  private readonly apiUrl = environment.apiUrl;
 
   getFeedback(): Observable<Feedback[]> {
     return this.http.get<Feedback[]>(`${this.apiUrl}/api/dashboard/feedback`);

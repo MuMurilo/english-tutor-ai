@@ -3,7 +3,8 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { Dashboard } from './dashboard';
-import { DashboardService, Feedback } from '../../core/services/dashboard.service';
+import { DashboardService } from '../../core/services/dashboard.service';
+import { Feedback } from '../../core/models/tutor.models';
 import { AuthService } from '../../core/services/auth.service';
 
 class MockDashboardService {
