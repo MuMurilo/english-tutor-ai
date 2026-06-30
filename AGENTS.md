@@ -18,6 +18,7 @@ Você deve sempre seguir este procedimento estruturado para todas as tarefas e i
 
 ## 3. Garantias de Execução (Definição de Pronto)
 - Toda task concluída precisa de garantias de que foi executada com sucesso.
+- **Escrita de Testes Dedicados:** Qualquer alteração de lógica de código ou comportamento deve ser acompanhada de testes unitários ou de integração que simulem e validem especificamente o novo comportamento introduzido (cobrindo tanto cenários de sucesso quanto cenários de falha). Não confie em testes legados gerais se a lógica interna mudou; estenda a cobertura de testes para testar a nova lógica de forma explícita.
 - Valide o código executando testes automatizados, validando a compilação/lint, rodando o servidor de desenvolvimento, ou criando scripts temporários de teste.
 - Apresente os resultados dessa validação (logs de sucesso, outputs de teste) como evidência da conclusão da task.
 
