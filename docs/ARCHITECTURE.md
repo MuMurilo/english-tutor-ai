@@ -20,17 +20,14 @@ infrastructure/ ← Implementações Técnicas (JPA, REST Client, JWT)
 
 ### `domain/` — Núcleo da Aplicação
 
-Contém a lógica de negócio central.
-
-> [!NOTE]
-> **Exceção temporária de acoplamento**: A classe `FeedbackParser.java` usa bibliotecas Jackson (`ObjectMapper`, `@JsonIgnoreProperties`) para conversão de JSON no domínio, o que configura um acoplamento temporário a ser refatorado futuramente para a infraestrutura/aplicação.
+Contém a lógica de negócio central e é completamente independente de frameworks e APIs externas.
 
 | Arquivo | Responsabilidade |
 |---------|-----------------|
 | `User.java` | Entidade com validação de e-mail, senha (bcrypt) e nível de inglês |
 | `ChatMessage.java` | Entidade representando uma mensagem (USER ou TUTOR) com timestamp |
 | `Feedback.java` | Entidade representando um feedback linguístico (ERROR ou CONSOLIDATED) |
-| `FeedbackParser.java` | Parseia o JSON retornado pelo Gemini em uma lista de objetos `Feedback` |
+| `AIService.java` | Interface de domínio (Port) para geração de chat e análise de feedback |
 | `TutorPromptBuilder.java` | Constrói o system prompt personalizado do tutor baseado no nível do estudante e erros anteriores |
 | `UserRepository.java` | Interface do repositório de usuários |
 | `ChatMessageRepository.java` | Interface do repositório de mensagens |
@@ -38,37 +35,39 @@ Contém a lógica de negócio central.
 
 ### `application/` — Casos de Uso
 
-Orquestra o domínio com integrações externas. Coordena o fluxo de dados entre camadas.
+Orquestra o domínio com integrações externas por meio de interfaces (Ports). Coordena o fluxo de dados entre camadas.
 
 | Arquivo | Responsabilidade |
 |---------|-----------------|
 | `AuthService.java` | Registro de usuários, hash de senha, login, geração e assinatura de JWT |
-| `ChatService.java` | Recebe mensagem do usuário, salva no BD, chama Gemini, salva resposta, dispara feedback assíncrono |
-| `FeedbackService.java` | Analisa a última mensagem do usuário de forma assíncrona via Gemini; retry com backoff exponencial |
+| `ChatService.java` | Recebe mensagem do usuário, salva no BD, chama `AIService` (Port), salva resposta, dispara feedback assíncrono |
+| `FeedbackService.java` | Analisa a última mensagem do usuário de forma assíncrona via `AIService` (Port); retry com backoff exponencial |
 | `DashboardService.java` | Gera o relatório pedagógico completo consultando todos os feedbacks acumulados |
-| `DidacticReportDto.java` | DTO de transferência do relatório: summary, strengths, weaknesses, actionPlan |
 
 ### `infrastructure/` — Detalhes Técnicos
 
-Implementa as interfaces do domínio e fornece adaptadores para sistemas externos.
+Implementa as interfaces do domínio (Adapters) e fornece integrações técnicas específicas.
 
 | Arquivo/Pasta | Responsabilidade |
 |--------------|-----------------|
+| `GeminiAIService.java` | Implementação (Adapter) de `AIService` que consome o cliente Gemini e mapeia para tipos de domínio |
 | `GeminiClient.java` | Interface `@RegisterRestClient` para a API do Gemini (MicroProfile REST Client) |
 | `GeminiRequest.java` | Monta o payload JSON da requisição (system instruction + conversation turns) |
 | `GeminiResponse.java` | Desserializa a resposta do Gemini (candidates → content → parts → text) |
+| `parser/FeedbackParser.java` | Parser específico de infraestrutura que utiliza Jackson (`ObjectMapper`) para desserializar respostas |
 | `repository/` | Implementações Panache dos repositórios do domínio |
 | `security/` | Criptografia de senhas (BCrypt) e filtros de segurança JWT |
 
 ### `rest/` — Controladores HTTP
 
-Controladores finos que apenas validam a entrada, extraem dados do JWT e delegam ao `application/`.
+Controladores finos que validam entrada, extraem dados do JWT e delegam para o `application/`.
 
 | Arquivo | Endpoint | Método |
 |---------|----------|--------|
 | `AuthResource.java` | `/api/auth/register` e `/api/auth/login` | POST |
 | `ChatResource.java` | `/api/chat/history` e `/api/chat/send` | GET, POST |
 | `DashboardResource.java` | `/api/dashboard/feedback` e `/api/dashboard/report` | GET |
+| `DidacticReportDto.java` | DTO de transferência do relatório: summary, strengths, weaknesses, actionPlan |
 
 ---
 
