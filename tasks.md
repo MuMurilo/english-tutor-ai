@@ -1,8 +1,8 @@
-# Plano de Correções — Fase 1: Segurança (Urgente)
+# Plano de Correções — Fase 1 (Urgente) & Fase 2 (Arquitetura)
 
-Este plano divide os problemas críticos de segurança listados no [PROJECT_ANALYSIS_REPORT.md](file:///D:/Users/muril/Estudos%20de%20IA/project-speckit/docs/PROJECT_ANALYSIS_REPORT.md) em tarefas atômicas e rastreáveis.
+Este plano divide os problemas críticos de segurança e de arquitetura listados no [PROJECT_ANALYSIS_REPORT.md](file:///D:/Users/muril/Estudos%20de%20IA/project-speckit/docs/PROJECT_ANALYSIS_REPORT.md) em tarefas atômicas e rastreáveis.
 
-## Tasks Mapeadas
+## Fase 1: Segurança (Urgente) - Status de Execução
 
 - [x] **Task 1.1: Segurança da API Key do Gemini (S1 & S4)**
   - Mover o parâmetro de API Key de `@QueryParam("key")` para um cabeçalho HTTP (`x-goog-api-key`) no `GeminiClient.java`.
@@ -18,25 +18,30 @@ Este plano divide os problemas críticos de segurança listados no [PROJECT_ANAL
   - Corrigir a expressão de validação de e-mail em `User.java` para evitar formatos inválidos.
 
 - [ ] **Task 1.4: Segurança de Rotas e Navegação no Frontend (S14)**
-  - Criar Auth Guard no Angular.
-  - Proteger as rotas `/chat` e `/dashboard` usando o Auth Guard em `app.routes.ts`.
+  - Criar `authGuard` funcional no Angular.
+  - Proteger as rotas `/chat` e `/dashboard` usando o `authGuard` em `app.routes.ts`.
 
 - [ ] **Task 1.5: Interceptor de Autenticação e Tratamento de 401 no Frontend (S11 & S12)**
-  - Criar um `AuthInterceptor` para anexar o token JWT automaticamente aos cabeçalhos de requisição de forma centralizada.
+  - Criar um `authInterceptor` para anexar o token JWT automaticamente aos cabeçalhos de requisição de forma centralizada.
   - Remover lógica de `getHeaders()` duplicada em `chat.service.ts` e `dashboard.service.ts`.
-  - Garantir que o `ErrorInterceptor` capture status `401` e redirecione o usuário para a tela de `/login`.
+  - Garantir que o `errorInterceptor` capture status `401`, execute logout do `AuthService` e redirecione o usuário para a tela de `/login`.
 
-- [ ] **Task 1.6: Armazenamento Seguro e Validação do JWT (S9 & S10)**
-  - Avaliar ou mitigar o armazenamento do JWT em `localStorage` (como usar cookies HttpOnly se o backend suportar, ou pelo menos implementar limpeza e tratamento robusto).
-  - Implementar verificação segura e assinatura de token no decodificador de JWT no frontend.
+- [ ] **Task 1.6: Armazenamento Seguro, Decodificação e Validação do JWT (S9 & S10)**
+  - Mover a decodificação de JWT e obtenção do `email` e `englishLevel` do usuário para o `AuthService` para eliminar a duplicação do `extractUserInfo()` em `chat.ts` e `dashboard.ts`.
+  - Tornar a decodificação do JWT robusta, com verificações de integridade estrutural.
 
-## Outras Tasks Solicitadas
+## Fase 2: Arquitetura & DDD (Organização e Desacoplamento)
 
-- [x] **Task 2.1: Refatoração e Unificação de Logs no Backend (E1 & Q7)**
-  - Substituir todos os `System.err.println` em `ChatService.java` e `DashboardService.java` pelo logger `org.jboss.logging.Logger`.
-  - Migrar o uso de `java.util.logging` em `FeedbackParser.java` para o padrão `org.jboss.logging.Logger`.
-  - Garantir o uso unificado e consistente de logs no backend.
+- [ ] **Task 2.1: Desacoplamento do Domínio do Backend (A1 & A2)**
+  - Mover a biblioteca Jackson (`ObjectMapper` e anotações `@JsonIgnoreProperties`) da camada de `domain` para as camadas adequadas (infraestrutura ou parser específico fora do domínio).
+  - Criar uma interface/port (ex: `AIService`) no domínio e fazer com que a aplicação utilize a interface ao invés de injetar diretamente `GeminiClient` de infraestrutura.
+  - Mover DTOs de domínio/application para a camada REST (`DidacticReportDto`).
 
-- [x] **Task 2.2: Correção de Inicialização e Dependência de Docker (Dev Services & Analytics)**
-  - Desativar Dev Services e telemetria interativa do Quarkus no `application.properties`.
-  - Atualizar script de execução `run-project.bat` com parâmetros robustos não-interativos.
+- [ ] **Task 2.2: Isolamento da Camada REST e Remoção de Código Morto (A3 & A6)**
+  - Modificar o `DashboardResource.java` para injetar o respectivo service e evitar chamadas diretas ao `FeedbackRepository`.
+  - Remover o arquivo de boilerplate `GreetingResource.java` e seus testes correspondentes.
+
+- [ ] **Task 2.3: Centralização de Configurações, Modelos e Componentes no Frontend (A7, A10, A11 & A13)**
+  - Criar um arquivo de configuração centralizado para a API (ex: `environment.ts` ou injetar via provider).
+  - Centralizar interfaces de modelo (`ChatMessage`, `Feedback`, `DidacticReport`) em uma pasta compartilhada `src/app/core/models/` ou similar.
+  - Criar um `SidebarComponent` compartilhado em uma nova pasta `src/app/shared/components/` para eliminar a duplicação massiva de HTML e CSS da sidebar.
