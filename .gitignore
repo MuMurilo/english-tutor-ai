@@ -59,9 +59,9 @@ frontend/.angular/
 #  AGENTS / WORKSPACE INTERNAL FILES
 # ============================================================
 
-.agents/
-.specify/
-AGENTS.md
+# .agents/
+# .specify/
+# AGENTS.md
 
 # ============================================================
 #  MISC
