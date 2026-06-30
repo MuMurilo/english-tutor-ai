@@ -10,12 +10,15 @@ import jakarta.transaction.Transactional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
+import org.jboss.logging.Logger;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
 public class ChatService {
+
+    private static final Logger LOG = Logger.getLogger(ChatService.class);
 
     @Inject
     ChatMessageRepository chatMessageRepository;
@@ -85,12 +88,12 @@ public class ChatService {
                 jakarta.ws.rs.WebApplicationException wae = (jakarta.ws.rs.WebApplicationException) e;
                 try {
                     String errorBody = wae.getResponse().readEntity(String.class);
-                    System.err.println("GEMINI API ERROR BODY: " + errorBody);
+                    LOG.error("GEMINI API ERROR BODY: " + errorBody);
                 } catch (Exception ex) {
                     // Ignore
                 }
             }
-            System.err.println("GEMINI API ERROR: " + e.getMessage());
+            LOG.error("GEMINI API ERROR: " + e.getMessage(), e);
             // Log do erro e fallback amigável conforme requisitos
             tutorResponseText = "I had a small connection glitch, but please repeat what you said. Let's continue practicing!";
         }

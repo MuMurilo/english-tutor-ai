@@ -29,3 +29,10 @@ Este plano divide os problemas críticos de segurança listados no [PROJECT_ANAL
 - [ ] **Task 1.6: Armazenamento Seguro e Validação do JWT (S9 & S10)**
   - Avaliar ou mitigar o armazenamento do JWT em `localStorage` (como usar cookies HttpOnly se o backend suportar, ou pelo menos implementar limpeza e tratamento robusto).
   - Implementar verificação segura e assinatura de token no decodificador de JWT no frontend.
+
+## Outras Tasks Solicitadas
+
+- [x] **Task 2.1: Refatoração e Unificação de Logs no Backend (E1 & Q7)**
+  - Substituir todos os `System.err.println` em `ChatService.java` e `DashboardService.java` pelo logger `org.jboss.logging.Logger`.
+  - Migrar o uso de `java.util.logging` em `FeedbackParser.java` para o padrão `org.jboss.logging.Logger`.
+  - Garantir o uso unificado e consistente de logs no backend.

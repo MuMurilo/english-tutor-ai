@@ -11,11 +11,14 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
+import org.jboss.logging.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
 public class DashboardService {
+
+    private static final Logger LOG = Logger.getLogger(DashboardService.class);
 
     @Inject
     FeedbackRepository feedbackRepository;
@@ -88,7 +91,7 @@ public class DashboardService {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Erro ao gerar relatório didático via Gemini: " + e.getMessage());
+            LOG.error("Erro ao gerar relatório didático via Gemini: " + e.getMessage(), e);
         }
 
         // Fallback caso a API falhe ou ocorra erro de parsing

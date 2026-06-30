@@ -10,7 +10,7 @@ public class FeedbackParser {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(FeedbackParser.class.getName());
+    private static final org.jboss.logging.Logger LOGGER = org.jboss.logging.Logger.getLogger(FeedbackParser.class);
 
     public static List<Feedback> parse(String rawJson, Long userId) {
         List<Feedback> feedbacks = new ArrayList<>();
@@ -52,7 +52,7 @@ public class FeedbackParser {
 
         } catch (Exception e) {
             // Se falhar o parse estruturado por alguma variação do LLM, loga ou ignora silenciosamente
-            LOGGER.warning("Erro ao fazer parse do feedback do Gemini: " + e.getMessage());
+            LOGGER.warn("Erro ao fazer parse do feedback do Gemini: " + e.getMessage(), e);
         }
 
         return feedbacks;
