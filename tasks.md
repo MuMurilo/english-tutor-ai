@@ -32,12 +32,12 @@ Este plano divide os problemas críticos de segurança e de arquitetura listados
 
 ## Fase 2: Arquitetura & DDD (Organização e Desacoplamento)
 
-- [ ] **Task 2.1: Desacoplamento do Domínio do Backend (A1 & A2)**
+- [x] **Task 2.1: Desacoplamento do Domínio do Backend (A1 & A2)**
   - Mover a biblioteca Jackson (`ObjectMapper` e anotações `@JsonIgnoreProperties`) da camada de `domain` para as camadas adequadas (infraestrutura ou parser específico fora do domínio).
   - Criar uma interface/port (ex: `AIService`) no domínio e fazer com que a aplicação utilize a interface ao invés de injetar diretamente `GeminiClient` de infraestrutura.
   - Mover DTOs de domínio/application para a camada REST (`DidacticReportDto`).
 
-- [ ] **Task 2.2: Isolamento da Camada REST e Remoção de Código Morto (A3 & A6)**
+- [x] **Task 2.2: Isolamento da Camada REST e Remoção de Código Morto (A3 & A6)**
   - Modificar o `DashboardResource.java` para injetar o respectivo service e evitar chamadas diretas ao `FeedbackRepository`.
   - Remover o arquivo de boilerplate `GreetingResource.java` e seus testes correspondentes.
 
