@@ -12,7 +12,7 @@ Este plano divide os problemas críticos de segurança listados no [PROJECT_ANAL
   - Verificar se `privatekey.pem` e `tutor-db.mv.db` (ou outros arquivos do H2) foram commitados no repositório.
   - Remover esses arquivos do histórico do Git e garantir que estejam no `.gitignore`. (Verificado: os arquivos sensíveis estão corretamente ignorados no `.gitignore` raiz e do backend, e não constam no histórico de commits do Git).
   
-- [ ] **Task 1.3: Validações de Entrada e Segurança de Senha no Backend (S5, S7 & S8)**
+- [x] **Task 1.3: Validações de Entrada e Segurança de Senha no Backend (S5, S7 & S8)**
   - Implementar limite de tamanho de mensagem no chat e sanitização de caracteres em `ChatResource.java`.
   - Adicionar validação de tamanho máximo de senha em `User.java` para evitar truncamento silencioso do BCrypt.
   - Corrigir a expressão de validação de e-mail em `User.java` para evitar formatos inválidos.

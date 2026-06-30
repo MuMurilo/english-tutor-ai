@@ -48,11 +48,14 @@ public class User {
         this.englishLevel = englishLevel;
     }
 
+    private static final java.util.regex.Pattern EMAIL_PATTERN = 
+        java.util.regex.Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$");
+
     public boolean isValid() {
-        if (email == null || email.trim().isEmpty() || !email.contains("@") || !email.contains(".")) {
+        if (email == null || email.trim().isEmpty() || !EMAIL_PATTERN.matcher(email).matches()) {
             return false;
         }
-        if (password == null || password.trim().isEmpty() || password.length() < 6) {
+        if (password == null || password.trim().isEmpty() || password.length() < 6 || password.length() > 72) {
             return false;
         }
         if (englishLevel == null) {

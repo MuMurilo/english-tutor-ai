@@ -39,11 +39,29 @@ public class ChatResource {
                     .build();
         }
 
+        if (request.content.length() > 2000) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Mensagem excede o limite de 2000 caracteres")
+                    .build();
+        }
+
+        String sanitizedContent = sanitizeInput(request.content);
+
         Long userId = getUserIdFromJwt();
         String englishLevel = jwt.getClaim("englishLevel");
 
-        ChatMessage tutorResponse = chatService.sendMessage(userId, englishLevel, request.content);
+        ChatMessage tutorResponse = chatService.sendMessage(userId, englishLevel, sanitizedContent);
         return Response.ok(tutorResponse).build();
+    }
+
+    private String sanitizeInput(String input) {
+        if (input == null) return null;
+        return input.replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;")
+                    .replace("\"", "&quot;")
+                    .replace("'", "&#x27;")
+                    .trim();
     }
 
     private Long getUserIdFromJwt() {
