@@ -52,3 +52,6 @@ src/main/resources/publickey.pem
 /.quarkus/cli/plugins/
 # TLS Certificates
 .certs/
+
+# Logs
+logs/
