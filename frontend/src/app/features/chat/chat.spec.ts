@@ -34,6 +34,9 @@ class MockAuthService {
     // base64 for {"upn":"student@test.com","englishLevel":"BEGINNER"}
     return "header.eyJ1cG4iOiJzdHVkZW50QHRlc3QuY29tIiwiZW5nbGlzaExldmVsIjoiQkVHSU5ORVIifQ==.signature";
   }
+  getUserInfo() {
+    return { email: 'student@test.com', englishLevel: 'BEGINNER' };
+  }
   logout() {}
 }
 
