@@ -1,5 +1,6 @@
-package com.english.tutor.domain;
+package com.english.tutor.infrastructure.parser;
 
+import com.english.tutor.domain.Feedback;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
@@ -9,7 +10,6 @@ import java.util.List;
 public class FeedbackParser {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
-
     private static final org.jboss.logging.Logger LOGGER = org.jboss.logging.Logger.getLogger(FeedbackParser.class);
 
     public static List<Feedback> parse(String rawJson, Long userId) {
@@ -51,7 +51,6 @@ public class FeedbackParser {
             }
 
         } catch (Exception e) {
-            // Se falhar o parse estruturado por alguma variação do LLM, loga ou ignora silenciosamente
             LOGGER.warn("Erro ao fazer parse do feedback do Gemini: " + e.getMessage(), e);
         }
 

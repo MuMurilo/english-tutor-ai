@@ -1,18 +1,14 @@
 package com.english.tutor.application;
 
+import com.english.tutor.domain.AIService;
 import com.english.tutor.domain.ChatMessage;
 import com.english.tutor.domain.Feedback;
-import com.english.tutor.domain.FeedbackParser;
 import com.english.tutor.domain.FeedbackRepository;
-import com.english.tutor.infrastructure.GeminiClient;
-import com.english.tutor.infrastructure.GeminiRequest;
-import com.english.tutor.infrastructure.GeminiResponse;
+import com.english.tutor.infrastructure.parser.FeedbackParser;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.context.ManagedExecutor;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import java.util.List;
 
@@ -23,17 +19,10 @@ public class FeedbackService {
     FeedbackRepository feedbackRepository;
 
     @Inject
-    @RestClient
-    GeminiClient geminiClient;
+    AIService aiService;
 
     @Inject
     ManagedExecutor managedExecutor;
-
-    @ConfigProperty(name = "gemini.api.key")
-    String apiKey;
-
-    @ConfigProperty(name = "gemini.model", defaultValue = "gemini-3.5-flash")
-    String modelName;
 
     private static final org.jboss.logging.Logger LOG = org.jboss.logging.Logger.getLogger(FeedbackService.class);
 
@@ -77,14 +66,13 @@ public class FeedbackService {
                         "}\n" +
                         "Se não houver erros ou vocabulários novos na última mensagem, retorne os respectivos arrays vazios. Não acrescente explicações fora do JSON.";
 
-                // 3. Chamar a API do Gemini com mecanismo de retry (backoff exponencial) para falhas temporárias (ex: 503)
-                GeminiRequest request = new GeminiRequest(systemPrompt, dialogueBuilder.toString());
-                GeminiResponse response = null;
+                // 3. Chamar o serviço de IA com mecanismo de retry
+                String rawJson = null;
                 int retries = 3;
                 int delayMs = 1500;
                 for (int i = 0; i < retries; i++) {
                     try {
-                        response = geminiClient.generateContent(modelName, apiKey, request);
+                        rawJson = aiService.analyzeFeedback(systemPrompt, dialogueBuilder.toString());
                         break;
                     } catch (Exception ex) {
                         if (i == retries - 1) {
@@ -101,16 +89,11 @@ public class FeedbackService {
                     }
                 }
 
-                if (response != null && response.candidates != null && !response.candidates.isEmpty()) {
-                    GeminiResponse.Candidate candidate = response.candidates.get(0);
-                    if (candidate.content != null && candidate.content.parts != null && !candidate.content.parts.isEmpty()) {
-                        String rawJson = candidate.content.parts.get(0).text;
-                        
-                        // 4. Fazer parse do JSON e salvar na base de dados
-                        List<Feedback> feedbacks = FeedbackParser.parse(rawJson, userId);
-                        if (!feedbacks.isEmpty()) {
-                            saveFeedbacks(feedbacks);
-                        }
+                if (rawJson != null && !rawJson.trim().isEmpty()) {
+                    // 4. Fazer parse do JSON e salvar na base de dados
+                    List<Feedback> feedbacks = FeedbackParser.parse(rawJson, userId);
+                    if (!feedbacks.isEmpty()) {
+                        saveFeedbacks(feedbacks);
                     }
                 }
             } catch (Exception e) {

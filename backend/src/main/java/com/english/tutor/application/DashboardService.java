@@ -1,15 +1,12 @@
 package com.english.tutor.application;
 
+import com.english.tutor.domain.AIService;
 import com.english.tutor.domain.Feedback;
 import com.english.tutor.domain.FeedbackRepository;
-import com.english.tutor.infrastructure.GeminiClient;
-import com.english.tutor.infrastructure.GeminiRequest;
-import com.english.tutor.infrastructure.GeminiResponse;
+import com.english.tutor.rest.DidacticReportDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import org.jboss.logging.Logger;
 import java.util.ArrayList;
@@ -24,16 +21,13 @@ public class DashboardService {
     FeedbackRepository feedbackRepository;
 
     @Inject
-    @RestClient
-    GeminiClient geminiClient;
-
-    @ConfigProperty(name = "gemini.api.key")
-    String apiKey;
-
-    @ConfigProperty(name = "gemini.model", defaultValue = "gemini-3.5-flash")
-    String modelName;
+    AIService aiService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    public List<Feedback> getFeedback(Long userId) {
+        return feedbackRepository.findByUserId(userId);
+    }
 
     public DidacticReportDto generateReport(Long userId) {
         List<Feedback> feedbacks = feedbackRepository.findByUserId(userId);
@@ -79,16 +73,10 @@ public class DashboardService {
         promptBuilder.append("\nCom base no histórico acima, gere o relatório didático em formato JSON.");
 
         try {
-            GeminiRequest request = new GeminiRequest(systemPrompt, promptBuilder.toString());
-            GeminiResponse response = geminiClient.generateContent(modelName, apiKey, request);
-
-            if (response != null && response.candidates != null && !response.candidates.isEmpty()) {
-                GeminiResponse.Candidate candidate = response.candidates.get(0);
-                if (candidate.content != null && candidate.content.parts != null && !candidate.content.parts.isEmpty()) {
-                    String rawText = candidate.content.parts.get(0).text;
-                    String cleanedJson = cleanJson(rawText);
-                    return objectMapper.readValue(cleanedJson, DidacticReportDto.class);
-                }
+            String rawText = aiService.analyzeFeedback(systemPrompt, promptBuilder.toString());
+            if (rawText != null && !rawText.trim().isEmpty()) {
+                String cleanedJson = cleanJson(rawText);
+                return objectMapper.readValue(cleanedJson, DidacticReportDto.class);
             }
         } catch (Exception e) {
             LOG.error("Erro ao gerar relatório didático via Gemini: " + e.getMessage(), e);

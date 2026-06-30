@@ -1,4 +1,4 @@
-package com.english.tutor.application;
+package com.english.tutor.rest;
 
 import java.util.List;
 

@@ -1,9 +1,7 @@
 package com.english.tutor.rest;
 
 import com.english.tutor.domain.Feedback;
-import com.english.tutor.domain.FeedbackRepository;
 import com.english.tutor.application.DashboardService;
-import com.english.tutor.application.DidacticReportDto;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -20,9 +18,6 @@ import java.util.List;
 public class DashboardResource {
 
     @Inject
-    FeedbackRepository feedbackRepository;
-
-    @Inject
     DashboardService dashboardService;
 
     @Inject
@@ -32,7 +27,7 @@ public class DashboardResource {
     @Path("/feedback")
     public List<Feedback> getFeedback() {
         Long userId = getUserIdFromJwt();
-        return feedbackRepository.findByUserId(userId);
+        return dashboardService.getFeedback(userId);
     }
 
     @GET

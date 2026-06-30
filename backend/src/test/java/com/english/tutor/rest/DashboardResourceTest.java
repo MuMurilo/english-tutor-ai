@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
 public class DashboardResourceTest {
@@ -45,14 +46,5 @@ public class DashboardResourceTest {
         .then()
             .statusCode(200)
             .body("$", notNullValue());
-    }
-
-
-
-    // Helper method to make assertTrue compile or import it
-    private void assertTrue(boolean condition) {
-        if (!condition) {
-            throw new AssertionError("Condition is not true");
-        }
     }
 }
